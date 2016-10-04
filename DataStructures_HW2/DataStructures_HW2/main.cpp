@@ -18,7 +18,10 @@ int rowLength = 0;
 bool solutionFound = false;
 vector<int> steps;
 vector<int> outputArray;
+bool secondTime = false;
 
+//prototypes
+void traverseBackToFront(vector<int>, int);
 
 //this is similar to traverseBackToFront except this goes from front to back
 //therefore it "pushes" the lights to the right
@@ -26,19 +29,19 @@ void traverseFrontToBack(vector<int> inputArray, int n)
 {
 	if (n < rowLength)
 	{
-		if (inputArray[n] == 0)
-		{
+		//if (inputArray[n] == 0)
+		//{
 			//ignore this light and call the function again with the next number down
-			traverseFrontToBack(inputArray, n + 1);
-		}
-		else if (inputArray[n] == 1)
+		//	traverseFrontToBack(inputArray, n + 1);
+		//}
+		if (inputArray[n] == 1 || inputArray[n] == 0)
 		{
 			//check the number just after this one
 			//if it is a 0 we should click the current button then recursively call this function again
 			//if it is a 1 we should recursively call this function again
 			if (n > 0 && n < rowLength - 1) //not at the first or last element
 			{
-				if (inputArray[n + 1] == 0 || inputArray[n - 1] == 1)
+				if (inputArray[n - 1] = 1)//(inputArray[n + 1] == 0 || inputArray[n - 1] == 1)
 				{
 					//"click" light then call function
 					inputArray[n] = (inputArray[n] + 1) % 2;
@@ -77,15 +80,17 @@ void traverseFrontToBack(vector<int> inputArray, int n)
 			}
 			else if (n == 0) //we are at the first light
 			{
-				//"click" light
-				inputArray[n] = (inputArray[n] + 1) % 2;
-				//add this buttons index to our list of steps
-				steps.push_back(n + 1);
-				//change the light to the right of this one unless we are on the last light
-				//notice we don't change the light to the left because there isn't one since we are at index 0
-				if (n < rowLength - 1)
-					inputArray[n + 1] = (inputArray[n + 1] + 1) % 2;
-
+				if (inputArray[n + 1] == 1)
+				{
+					//"click" light
+					inputArray[n] = (inputArray[n] + 1) % 2;
+					//add this buttons index to our list of steps
+					steps.push_back(n + 1);
+					//change the light to the right of this one unless we are on the last light
+					//notice we don't change the light to the left because there isn't one since we are at index 0
+					if (n < rowLength - 1)
+						inputArray[n + 1] = (inputArray[n + 1] + 1) % 2;
+				}
 
 
 				//check to see if a 1 is still in the light row
@@ -113,8 +118,11 @@ void traverseFrontToBack(vector<int> inputArray, int n)
 				oneRemaining = true;
 		}
 
-		if (oneRemaining) //no solution found, there is no solution for this puzzle
-			solutionFound = false;
+		if (oneRemaining && !secondTime) //no solution found, go back to front one more time
+		{
+			secondTime = true;
+			traverseBackToFront(inputArray, rowLength - 1);
+		}
 		else			 //solution found
 			solutionFound = true;    
 	}
@@ -128,19 +136,19 @@ void traverseBackToFront(vector<int> inputArray, int n)
 {
 	if (n >= 0)
 	{
-		if (inputArray[n] == 0)
-		{
+		//if (inputArray[n] == 0)
+		//{
 			//ignore this light and call the function again with the next number down
-			traverseBackToFront(inputArray, n - 1);
-		}
-		else if (inputArray[n] == 1)
+		//	traverseBackToFront(inputArray, n - 1);
+		//}
+		if (inputArray[n] == 1 || inputArray[n] == 0)
 		{
 			//check the number just before it
 			//if it is a 0 we should click the current button then recursively call this function again
 			//if it is a 1 we should recursively call this function again
 			if (n > 0 && n < rowLength - 1) //not at the first or last element
 			{
-				if (inputArray[n - 1] == 0 || inputArray[n + 1] == 1)
+				if (inputArray[n + 1] == 1) //(inputArray[n - 1] == 0 || inputArray[n + 1] == 1)
 				{
 					//"click" light then call function
 					inputArray[n] = (inputArray[n] + 1) % 2;
@@ -179,15 +187,17 @@ void traverseBackToFront(vector<int> inputArray, int n)
 			}
 			else if (n == 0) //we are at the first light
 			{
-				//"click" light
-				inputArray[n] = (inputArray[n] + 1) % 2;
-				//add this buttons index to our list of steps
-				steps.push_back(n + 1);
-				//change the light to the right of this one unless we are on the last light
-				//notice we don't change the light to the left because there isn't one since we are at index 0
-				if (n < rowLength - 1)
-					inputArray[n + 1] = (inputArray[n + 1] + 1) % 2;
-
+				if (inputArray[n + 1] == 1)
+				{
+					//"click" light
+					inputArray[n] = (inputArray[n] + 1) % 2;
+					//add this buttons index to our list of steps
+					steps.push_back(n + 1);
+					//change the light to the right of this one unless we are on the last light
+					//notice we don't change the light to the left because there isn't one since we are at index 0
+					if (n < rowLength - 1)
+						inputArray[n + 1] = (inputArray[n + 1] + 1) % 2;
+				}
 
 				/*
 				//check to see if a 1 is still in the light row
@@ -216,9 +226,13 @@ void traverseBackToFront(vector<int> inputArray, int n)
 				oneRemaining = true;
 		}
 
-		if (oneRemaining) //no solution found, try going front to Back
+		if (oneRemaining && !secondTime) //no solution found, try going front to Back
+		{
 			traverseFrontToBack(inputArray, 0);
-		else			 //solution found
+		}
+		else if (oneRemaining && secondTime)		 //solution not found on second go through
+			solutionFound = false;
+		else
 			solutionFound = true;
 	}
 }
