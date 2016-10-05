@@ -17,11 +17,108 @@ using namespace std;
 int rowLength = 0;
 bool solutionFound = false;
 vector<int> steps;
+vector<int> outputSteps;
 vector<int> outputArray;
 bool secondTime = false;
 
 //prototypes
 void traverseBackToFront(vector<int>, int);
+void traverseFrontToBack(vector<int>, int);
+
+int main()
+{
+	int n = 0;
+	char input[20] = {};
+
+	//determine length of string input
+	cout << "\nPlease enter the length of the row of lights: ";
+	cin >> rowLength;
+	
+	//read in "row" of lights
+	cout << "\nPlease enter the row of lights: ";
+	cin >> input;
+
+	//vector to store row in
+	vector<int> lightRow(rowLength);
+
+	//convert char array input to array of ints
+	for (int i = 0; i < rowLength; i++)
+	{
+		if (input[i] == '1')
+			lightRow[i] = 1;
+		else if (input[i] == '0')
+			lightRow[i] = 0;
+	}
+
+	traverseBackToFront(lightRow, rowLength - 1);
+
+	if (solutionFound)
+	{
+		
+		//print out the final row
+		//cout << "\nFinal Row: ";
+		//for (int i = 0; i < rowLength; i++)
+		//cout << outputArray[i];
+
+		//reorder the steps to be in order
+		sort(steps.begin(), steps.end());
+
+		//remove duplicates as these count as not clicking at all
+		for (int i = 0; i < steps.size(); i++)
+		{
+			int count = 0;
+
+			for (int j = 0; j < steps.size(); j++)
+			{
+				if (steps[i] == steps[j])
+				{
+					count += 1;
+				}
+			}
+			if (count % 2 == 1)
+			{
+				outputSteps.push_back(steps[i]);
+			}
+		}
+
+		//get only unique numbers after eliminating the "double click" duplicates
+		unique(outputSteps.begin(), outputSteps.end());
+		
+		//resize array
+		int newSize = 0;
+		for (int i = 0; i < outputSteps.size(); i++)
+		{
+			if (i < outputSteps.size() - 1)
+			{
+				if (outputSteps[i] > outputSteps[i + 1])
+				{
+					newSize = i + 1;
+					break;
+				}
+			}
+			else
+			{
+				newSize = i + 1;
+			}
+		}
+		outputSteps.resize(newSize);
+
+		//print out the steps
+		cout << "\nButtons Pressed: ";
+		for (int i = 0; i < outputSteps.size(); i++)
+			cout << outputSteps[i] << " ";
+	}
+	else
+	{
+		cout << "\nNo Solution\n";
+	}
+
+
+	cout << "\n \n \nPress enter to exit...";
+	cin.get();
+	cin.get();
+	return 0;
+}
 
 //this is similar to traverseBackToFront except this goes from front to back
 //therefore it "pushes" the lights to the right
@@ -29,11 +126,6 @@ void traverseFrontToBack(vector<int> inputArray, int n)
 {
 	if (n < rowLength)
 	{
-		//if (inputArray[n] == 0)
-		//{
-			//ignore this light and call the function again with the next number down
-		//	traverseFrontToBack(inputArray, n + 1);
-		//}
 		if (inputArray[n] == 1 || inputArray[n] == 0)
 		{
 			//check the number just after this one
@@ -92,17 +184,6 @@ void traverseFrontToBack(vector<int> inputArray, int n)
 						inputArray[n + 1] = (inputArray[n + 1] + 1) % 2;
 				}
 
-
-				//check to see if a 1 is still in the light row
-				//if there is, the the puzzle cannot be solved
-				for (int i = 0; i < rowLength; i++)
-				{
-					if (inputArray[i] == 1)
-					{
-						cout << "\nNo Solution\n";
-					}
-				}
-
 				//else call function again to exit
 				traverseFrontToBack(inputArray, n + 1);
 			}
@@ -124,7 +205,7 @@ void traverseFrontToBack(vector<int> inputArray, int n)
 			traverseBackToFront(inputArray, rowLength - 1);
 		}
 		else			 //solution found
-			solutionFound = true;    
+			solutionFound = true;
 	}
 }
 
@@ -136,11 +217,6 @@ void traverseBackToFront(vector<int> inputArray, int n)
 {
 	if (n >= 0)
 	{
-		//if (inputArray[n] == 0)
-		//{
-			//ignore this light and call the function again with the next number down
-		//	traverseBackToFront(inputArray, n - 1);
-		//}
 		if (inputArray[n] == 1 || inputArray[n] == 0)
 		{
 			//check the number just before it
@@ -199,18 +275,6 @@ void traverseBackToFront(vector<int> inputArray, int n)
 						inputArray[n + 1] = (inputArray[n + 1] + 1) % 2;
 				}
 
-				/*
-				//check to see if a 1 is still in the light row
-				//if there is, traverse the row from fron to back
-				for (int i = 0; i < rowLength; i++)
-				{
-					if (inputArray[i] == 1)
-					{
-						traverseFrontToBack(inputArray, 0);
-						break;
-					}
-				}*/
-
 				//else call function again to exit
 				traverseBackToFront(inputArray, n - 1);
 			}
@@ -236,64 +300,4 @@ void traverseBackToFront(vector<int> inputArray, int n)
 			solutionFound = true;
 	}
 }
-
-
-int main()
-{
-	int n = 0;
-	char input[20] = {};
-
-	//determine length of string input
-	cout << "\nPlease enter the length of the row of lights: ";
-	cin >> rowLength;
-	
-	//read in "row" of lights
-	cout << "\nPlease enter the row of lights: ";
-	cin >> input;
-
-	//vector to store row in
-	vector<int> lightRow(rowLength);
-
-	//convert char array input to array of ints
-	for (int i = 0; i < rowLength; i++)
-	{
-		if (input[i] == '1')
-			lightRow[i] = 1;
-		else if (input[i] == '0')
-			lightRow[i] = 0;
-	}
-
-	traverseBackToFront(lightRow, rowLength - 1);
-
-	if (solutionFound)
-	{
-		//print out the final row
-		cout << "\nFinal Row: ";
-		for (int i = 0; i < rowLength; i++)
-		cout << outputArray[i];
-
-		//reorder the steps to be in order
-		sort(steps.begin(), steps.end());
-
-		//remove duplicates as these count as not clicking at all
-		//unique(steps.begin(), steps.end());
-		//steps.erase(unique(steps.begin(), steps.end()), steps.end());
-
-		//print out the steps
-		cout << "\nButtons Pressed: ";
-		for (int i = 0; i < steps.size(); i++)
-			cout << steps[i] << " ";
-	}
-	else
-	{
-		cout << "\nNo Solution\n";
-	}
-
-
-	cout << "\n \n \nPress enter to exit...";
-	cin.get();
-	cin.get();
-	return 0;
-}
-
 
